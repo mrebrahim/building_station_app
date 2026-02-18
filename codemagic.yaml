@@ -1,22 +1,28 @@
 workflows:
-  ios-workflow:
+  ios-build:
     name: iOS Build
+    instance_type: mac_mini_m1
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
     scripts:
       - name: Generate iOS files manually
         script: | 
-          # Ensure we are in the project root and create iOS files
-          cd . 
+          # Create default ios files
+          flutter config --enable-ios
           flutter create . --platforms ios
+      - name: Install dependencies
+        script: | 
+          flutter packages pub get
       - name: Install Pods
         script: |
-          cd ios
-          pod install
-      - name: Build iOS
+          # Go to ios folder and install pods
+          find . -maxdepth 1 -type d \( -name ios \) -exec bash -c "cd '{}' && pod install" \;
+      - name: Build iOS (Unsigned)
         script: | 
+          # Build .app payload
           flutter build ios --release --no-codesign
     artifacts:
       - build/ios/iphoneos/*.app
-    publishing:
-      email:
-        recipients:
-          - user_email@example.com
+      - flutter_drive.log
