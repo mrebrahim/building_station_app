@@ -1,0 +1,19 @@
+workflows:
+  my-workflow:
+    name: iOS Build (Generated)
+    instance_type: mac_mini_m1
+    environment:
+      flutter: stable
+      xcode: latest
+    scripts:
+      - name: Generate iOS files
+        script: |
+          # Create the missing iOS files on the build machine
+          flutter create . --platforms ios
+      - name: Build iOS (Unsigned)
+        script: |
+          # Build the .app bundle without code signing
+          flutter build ios --release --no-codesign
+    artifacts:
+      - build/ios/iphoneos/*.app
+      - flutter_drive.log
